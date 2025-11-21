@@ -6,6 +6,8 @@ from a4s_eval.metric_registries.textgen_metric_registry import TextgenMetric
 from a4s_eval.service.functional_model import TextGenerationModel
 from a4s_eval.service.model_factory import load_model
 import pytest
+from tests.save_measures_utils import save_measures
+
 
 pytest.skip("Skipping text generation tests (Ollama not available)", allow_module_level=True)
 
@@ -21,7 +23,6 @@ from a4s_eval.data_model.evaluation import (
     ModelTask,
 )
 
-from tests.save_measures_utils import save_measures
 
 
 @pytest.fixture
