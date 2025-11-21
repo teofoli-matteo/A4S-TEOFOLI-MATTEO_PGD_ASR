@@ -9,10 +9,13 @@ import torch.nn.functional as F
 from torchvision import models, transforms
 from PIL import Image
 
-from a4s_eval.metric_registries.model_metric_registry import model_metric_registry, ModelMetric
+from a4s_eval.metric_registries.model_metric_registry import (
+    model_metric_registry,
+    ModelMetric,
+)
 from a4s_eval.service.functional_model import TabularClassificationModel
 from a4s_eval.service.model_factory import load_model
-from a4s_eval.service.model_functional import FunctionalModel  
+from a4s_eval.service.model_functional import FunctionalModel
 from a4s_eval.data_model.evaluation import (
     Dataset,
     DataShape,
@@ -27,12 +30,18 @@ from tests.save_measures_utils import save_measures
 
 @pytest.fixture
 def data_shape() -> DataShape:
-    metadata = pd.read_csv("tests/data/lcld_v2_metadata_api.csv").to_dict(orient="records")
+    metadata = pd.read_csv("tests/data/lcld_v2_metadata_api.csv").to_dict(
+        orient="records"
+    )
     for record in metadata:
         record["pid"] = uuid.uuid4()
 
     data_shape = {
-        "features": [item for item in metadata if item.get("name") not in ["charged_off", "issue_d"]],
+        "features": [
+            item
+            for item in metadata
+            if item.get("name") not in ["charged_off", "issue_d"]
+        ],
         "target": next(rec for rec in metadata if rec.get("name") == "charged_off"),
         "date": next(rec for rec in metadata if rec.get("name") == "issue_d"),
     }
@@ -109,7 +118,9 @@ def test_data_metric_registry_contains_evaluator(
         x = preprocess(img).unsqueeze(0).to(device)
 
         # load a pretrained resnet for the PGD attack (we use it directly, it's only for testing)
-        resnet = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1).to(device)
+        resnet = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1).to(
+            device
+        )
         resnet.eval()
         with torch.no_grad():
             pred = resnet(x).argmax(dim=1)
@@ -130,7 +141,9 @@ def test_data_metric_registry_contains_evaluator(
         )
 
         # Create a Dataset and inject private tensors required by the PGD metric
-        dataset = Dataset(pid=uuid.uuid4(), shape=ds_shape, data=pd.DataFrame([{"dummy": 0}]))
+        dataset = Dataset(
+            pid=uuid.uuid4(), shape=ds_shape, data=pd.DataFrame([{"dummy": 0}])
+        )
         # attach tensors used by the metric implementation
         object.__setattr__(dataset, "_x_tensor", x)
         object.__setattr__(dataset, "_y_tensor", pred)

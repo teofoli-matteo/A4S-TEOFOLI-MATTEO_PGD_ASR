@@ -19,7 +19,9 @@ from a4s_eval.data_model.evaluation import (
     ModelTask,
 )
 
-pytest.skip("Skipping text generation tests (Ollama not available)", allow_module_level=True)
+pytest.skip(
+    "Skipping text generation tests (Ollama not available)", allow_module_level=True
+)
 
 
 @pytest.fixture
