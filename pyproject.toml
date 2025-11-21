@@ -23,7 +23,8 @@ dependencies = [
     "celery[redis]>=5.5.3",
     "torch>=2.8.0",
     "numpy>=2.3.0",
-    "ollama>=0.6.0",
+    "torchvision==0.24.0",
+    "pillow>=11.0.0",
 ]
 
 [dependency-groups]
