@@ -12,7 +12,6 @@ import torchvision.models as models
 import pytest
 
 
-import a4s_eval.metrics.model_metrics.pgd_asr  
 from a4s_eval.metric_registries.model_metric_registry import model_metric_registry
 from a4s_eval.data_model.evaluation import Dataset, DataShape
 from a4s_eval.service.model_functional import FunctionalModel

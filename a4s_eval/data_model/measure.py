@@ -4,6 +4,8 @@ import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, field_serializer
+from typing import List, Optional
+
 
 
 class Measure(BaseModel):
@@ -17,6 +19,8 @@ class Measure(BaseModel):
     name: str  # Name of the metric (e.g., 'accuracy', 'f1_score', 'drift')
     score: float  # Numerical value of the metric
     time: datetime  # Timestamp when the metric was computed
+    pred_before: Optional[List[int]] = None
+    pred_after: Optional[List[int]] = None
 
     feature_pid: uuid.UUID | None = None
 

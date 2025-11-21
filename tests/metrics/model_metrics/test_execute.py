@@ -10,7 +10,6 @@ import torch
 import torch.nn.functional as F
 from torchvision import models, transforms
 from PIL import Image
-import numpy as np
 import os
 
 from a4s_eval.data_model.evaluation import (
