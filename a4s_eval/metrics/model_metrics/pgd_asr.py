@@ -17,9 +17,9 @@ def _build_loader_from_dataset(dataset: Dataset, datashape: DataShape, batch_siz
     if x_tensor is None or y_tensor is None:
         raise ValueError("Dataset must have _x_tensor and _y_tensor for PGD metric.")
 
-    return DataLoader(TensorDataset(x_tensor, y_tensor),
-                      batch_size=batch_size,
-                      shuffle=False)
+    return DataLoader(
+        TensorDataset(x_tensor, y_tensor), batch_size=batch_size, shuffle=False
+    )
 
 
 def pgd_attack_torch(model, x, y, eps=0.01, alpha=0.005, iters=7, device="cpu"):
@@ -43,14 +43,18 @@ def pgd_attack_torch(model, x, y, eps=0.01, alpha=0.005, iters=7, device="cpu"):
 
 
 @model_metric(name="pgd_asr")
-def pgd_asr_metric(datashape: DataShape, model: Model, dataset: Dataset,
-                   functional_model: FunctionalModel):
-
+def pgd_asr_metric(
+    datashape: DataShape,
+    model: Model,
+    dataset: Dataset,
+    functional_model: FunctionalModel,
+):
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     if hasattr(functional_model, "as_torch_model"):
         torch_model = functional_model.as_torch_model().to(device)
     else:
+
         class Wrapper(torch.nn.Module):
             def forward(self, x):
                 out = functional_model.predict(x)
@@ -75,8 +79,9 @@ def pgd_asr_metric(datashape: DataShape, model: Model, dataset: Dataset,
 
         preds_before.extend(clean_pred.cpu().tolist())
 
-        x_adv = pgd_attack_torch(torch_model, xb, yb,
-                                 eps=0.01, alpha=0.005, iters=7, device=device)
+        x_adv = pgd_attack_torch(
+            torch_model, xb, yb, eps=0.01, alpha=0.005, iters=7, device=device
+        )
 
         with torch.no_grad():
             adv_pred = torch_model(x_adv).argmax(dim=1)

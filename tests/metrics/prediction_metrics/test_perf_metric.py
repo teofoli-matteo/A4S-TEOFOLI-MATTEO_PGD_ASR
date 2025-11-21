@@ -41,14 +41,14 @@ def data_shape() -> DataShape:
 
 
 @pytest.fixture
-def test_dataset(tab_class_test_data:pd.DataFrame, data_shape: DataShape) -> Dataset:
+def test_dataset(tab_class_test_data: pd.DataFrame, data_shape: DataShape) -> Dataset:
     data = tab_class_test_data
     data["issue_d"] = pd.to_datetime(data["issue_d"])
     return Dataset(pid=uuid.uuid4(), shape=data_shape, data=data)
 
 
 @pytest.fixture
-def ref_dataset(tab_class_train_data:pd.DataFrame, data_shape: DataShape) -> Dataset:
+def ref_dataset(tab_class_train_data: pd.DataFrame, data_shape: DataShape) -> Dataset:
     data = tab_class_train_data
     data["issue_d"] = pd.to_datetime(data["issue_d"])
     return Dataset(

@@ -95,43 +95,50 @@ def test_data_metric_registry_contains_evaluator(
     name, func = evaluator_function
 
     if name == "pgd_asr":
-
         device = "cpu"
         img_path = "tests/data/duck.png"
         assert os.path.exists(img_path), f"Image not found at {img_path}"
 
-        preprocess = transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-        ])
+        preprocess = transforms.Compose(
+            [
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+            ]
+        )
         img = Image.open(img_path).convert("RGB")
         x = preprocess(img).unsqueeze(0).to(device)
 
-        resnet = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1).to(device)
+        resnet = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1).to(
+            device
+        )
         resnet.eval()
         with torch.no_grad():
             pred = resnet(x).argmax(dim=1)
 
-        ds_shape = DataShape.model_validate({
-            "features": [],
-            "target": {
-                "pid": uuid.uuid4(),
-                "name": "label",
-                "feature_type": "categorical",
-                "min_value": 0,
-                "max_value": 9999
-            },
-            "date": None
-        })
-        dataset = Dataset(pid=uuid.uuid4(), shape=ds_shape, data=pd.DataFrame([{"dummy": 0}]))
+        ds_shape = DataShape.model_validate(
+            {
+                "features": [],
+                "target": {
+                    "pid": uuid.uuid4(),
+                    "name": "label",
+                    "feature_type": "categorical",
+                    "min_value": 0,
+                    "max_value": 9999,
+                },
+                "date": None,
+            }
+        )
+        dataset = Dataset(
+            pid=uuid.uuid4(), shape=ds_shape, data=pd.DataFrame([{"dummy": 0}])
+        )
         object.__setattr__(dataset, "_x_tensor", x)
         object.__setattr__(dataset, "_y_tensor", pred)
 
         functional_model = FunctionalModel(
             predict=lambda t: resnet(t),
             predict_proba=lambda t: F.softmax(resnet(t), dim=1).detach().cpu().numpy(),
-            predict_with_grad=lambda t: (resnet(t), torch.zeros_like(resnet(t)))
+            predict_with_grad=lambda t: (resnet(t), torch.zeros_like(resnet(t))),
         )
 
         measures = func(dataset.shape, None, dataset, functional_model)
@@ -140,5 +147,3 @@ def test_data_metric_registry_contains_evaluator(
 
     save_measures(name, measures)
     assert len(measures) > 0
-
-

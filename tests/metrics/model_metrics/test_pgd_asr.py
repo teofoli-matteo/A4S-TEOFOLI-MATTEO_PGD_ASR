@@ -34,15 +34,11 @@ def load_class_mapping():
     wnid_file = os.path.join(ROOT, "wnids.txt")
     with open(wnid_file, "r") as f:
         wnids = [w.strip() for w in f.readlines()]
-    return {wnid: idx for idx, wnid in enumerate(wnids)}  
+    return {wnid: idx for idx, wnid in enumerate(wnids)}
 
 
 def preprocess_image(path, device):
-    transform = T.Compose([
-        T.Resize(256),
-        T.CenterCrop(224),
-        T.ToTensor()
-    ])
+    transform = T.Compose([T.Resize(256), T.CenterCrop(224), T.ToTensor()])
     img = Image.open(path).convert("RGB")
     return transform(img).unsqueeze(0).to(device)
 
@@ -57,14 +53,17 @@ def wrap_model_for_a4s(torch_model, device):
 
     return FunctionalModel(
         predict=predict_fn,
-        predict_proba=lambda x: torch.softmax(predict_fn(x).detach(), dim=1).cpu().numpy(),
-        predict_with_grad=lambda x: (predict_fn(x), torch.zeros(1))
+        predict_proba=lambda x: torch.softmax(predict_fn(x).detach(), dim=1)
+        .cpu()
+        .numpy(),
+        predict_with_grad=lambda x: (predict_fn(x), torch.zeros(1)),
     )
 
 
-@pytest.mark.parametrize("model_name", ["resnet18", "mobilenet_v2", "vgg16", "densenet121"])
+@pytest.mark.parametrize(
+    "model_name", ["resnet18", "mobilenet_v2", "vgg16", "densenet121"]
+)
 def test_pgd_asr_on_tiny_imagenet(model_name):
-
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     if model_name == "resnet18":
@@ -87,7 +86,7 @@ def test_pgd_asr_on_tiny_imagenet(model_name):
 
     for path in paths:
         x = preprocess_image(path, device)
-        class_folder = os.path.basename(os.path.dirname(os.path.dirname(path))) 
+        class_folder = os.path.basename(os.path.dirname(os.path.dirname(path)))
         true_label = class_to_idx[class_folder]
 
         xs.append(x.cpu())
@@ -96,17 +95,19 @@ def test_pgd_asr_on_tiny_imagenet(model_name):
     x_tensor = torch.cat(xs, dim=0)
     y_tensor = torch.cat(ys, dim=0)
 
-    shape = DataShape.model_validate({
-        "features": [],
-        "target": {
-            "pid": uuid.uuid4(),
-            "name": "label",
-            "feature_type": "categorical",
-            "min_value": 0,
-            "max_value": 199,
-        },
-        "date": None
-    })
+    shape = DataShape.model_validate(
+        {
+            "features": [],
+            "target": {
+                "pid": uuid.uuid4(),
+                "name": "label",
+                "feature_type": "categorical",
+                "min_value": 0,
+                "max_value": 199,
+            },
+            "date": None,
+        }
+    )
 
     dummy_df = pd.DataFrame([0] * len(xs), columns=["dummy"])
     dataset = Dataset(pid=uuid.uuid4(), shape=shape, data=dummy_df)
@@ -124,13 +125,10 @@ def test_pgd_asr_on_tiny_imagenet(model_name):
 
     csv_path = os.path.join(
         MEASURES_DIR,
-        f"pgd_asr_{model_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        f"pgd_asr_{model_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
     )
 
-    df = pd.DataFrame({
-        "pred_before": m.pred_before,
-        "pred_after": m.pred_after
-    })
+    df = pd.DataFrame({"pred_before": m.pred_before, "pred_after": m.pred_after})
     df["asr"] = (df["pred_before"] != df["pred_after"]).astype(float)
 
     print(f"Global ASR: {m.score:.4f}")

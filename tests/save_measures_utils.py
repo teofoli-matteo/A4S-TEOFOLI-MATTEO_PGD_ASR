@@ -9,4 +9,4 @@ def save_measures(name: str, measures: list[Measure]) -> None:
     df = pd.DataFrame([m.model_dump() for m in measures])
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-    df.to_csv(OUTPUT_FOLDER + name.lower().replace(' ', '_') + ".csv", index=False)
+    df.to_csv(OUTPUT_FOLDER + name.lower().replace(" ", "_") + ".csv", index=False)

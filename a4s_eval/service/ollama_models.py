@@ -4,6 +4,7 @@ from a4s_eval.data_model.evaluation import ModelConfig
 from a4s_eval.service.functional_model import TextGenerationModel
 from a4s_eval.typing import TextInput, TextOutput
 
+
 def load_ollama_text_model(model_config: ModelConfig) -> TextGenerationModel:
     """
     Load a text generation model backed by Ollama and return a TextGenerationModel.
@@ -21,7 +22,9 @@ def load_ollama_text_model(model_config: ModelConfig) -> TextGenerationModel:
             text_input = " ".join(text_input)
 
         if not hasattr(ollama, "generate"):
-            raise RuntimeError("ollama package does not expose a 'generate' function. Install a compatible version.")
+            raise RuntimeError(
+                "ollama package does not expose a 'generate' function. Install a compatible version."
+            )
 
         try:
             resp = ollama.generate(model=model_name, prompt=text_input, **kwargs)

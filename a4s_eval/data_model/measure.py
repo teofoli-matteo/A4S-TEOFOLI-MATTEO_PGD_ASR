@@ -7,7 +7,6 @@ from pydantic import BaseModel, field_serializer
 from typing import List, Optional
 
 
-
 class Measure(BaseModel):
     """Represents a single evaluation metric with its value and associated metadata.
 
