@@ -59,6 +59,7 @@ def wrap_model_for_a4s(torch_model, device):
         predict_with_grad=lambda x: (predict_fn(x), torch.zeros(1)),
     )
 
+
 @pytest.mark.parametrize(
     "model_name", ["resnet18", "mobilenet_v2", "vgg16", "densenet121"]
 )
@@ -91,7 +92,7 @@ def test_pgd_asr_on_tiny_imagenet(model_name):
         ys.append(torch.tensor([true_label]))
 
     # change for numpy maybe better than _x_tensor & _y_tensor ?
-    xs_np = [x.numpy().squeeze(0) for x in xs]  
+    xs_np = [x.numpy().squeeze(0) for x in xs]
     ys_np = [y.numpy() for y in ys]
 
     df = pd.DataFrame({"image": xs_np, "label": ys_np})
