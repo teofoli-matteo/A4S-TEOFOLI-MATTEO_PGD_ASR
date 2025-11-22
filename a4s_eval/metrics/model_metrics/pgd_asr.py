@@ -11,11 +11,17 @@ from torch.utils.data import DataLoader, TensorDataset
 
 
 def _build_loader_from_dataset(dataset: Dataset, datashape: DataShape, batch_size=32):
-    x_tensor = getattr(dataset, "_x_tensor", None)
-    y_tensor = getattr(dataset, "_y_tensor", None)
-
-    if x_tensor is None or y_tensor is None:
-        raise ValueError("Dataset must have _x_tensor and _y_tensor for PGD metric.")
+    try:
+        x_tensor = torch.stack(
+            [torch.from_numpy(img) for img in dataset.data["image"].to_list()]
+        )
+        y_tensor = torch.stack(
+            [torch.from_numpy(lbl).squeeze() for lbl in dataset.data["label"].to_list()]
+        )
+    except Exception as e:
+        raise ValueError(
+            "Dataset must have 'image' and 'label' columns with numpy arrays."
+        ) from e
 
     return DataLoader(
         TensorDataset(x_tensor, y_tensor), batch_size=batch_size, shuffle=False

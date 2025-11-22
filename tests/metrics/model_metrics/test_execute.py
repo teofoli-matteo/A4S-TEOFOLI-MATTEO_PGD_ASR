@@ -142,12 +142,15 @@ def test_data_metric_registry_contains_evaluator(
 
         # Create a Dataset and inject private tensors required by the PGD metric
         dataset = Dataset(
-            pid=uuid.uuid4(), shape=ds_shape, data=pd.DataFrame([{"dummy": 0}])
+            pid=uuid.uuid4(),
+            shape=ds_shape,
+            data=pd.DataFrame(
+                {
+                    "image": [x.squeeze(0).cpu().numpy()],  # shape (3,224,224)
+                    "label": [pred.cpu().numpy()],  # shape ()
+                }
+            ),
         )
-        # attach tensors used by the metric implementation
-        object.__setattr__(dataset, "_x_tensor", x)
-        object.__setattr__(dataset, "_y_tensor", pred)
-
         # Wrap the resnet into a FunctionalModel compatible with the metric registry
         functional_model_img = FunctionalModel(
             predict=lambda t: resnet(t),

@@ -59,7 +59,6 @@ def wrap_model_for_a4s(torch_model, device):
         predict_with_grad=lambda x: (predict_fn(x), torch.zeros(1)),
     )
 
-
 @pytest.mark.parametrize(
     "model_name", ["resnet18", "mobilenet_v2", "vgg16", "densenet121"]
 )
@@ -79,7 +78,6 @@ def test_pgd_asr_on_tiny_imagenet(model_name):
     model.eval()
 
     class_to_idx = load_class_mapping()
-
     paths = load_tiny_imagenet_paths()
     xs = []
     ys = []
@@ -92,8 +90,11 @@ def test_pgd_asr_on_tiny_imagenet(model_name):
         xs.append(x.cpu())
         ys.append(torch.tensor([true_label]))
 
-    x_tensor = torch.cat(xs, dim=0)
-    y_tensor = torch.cat(ys, dim=0)
+    # change for numpy maybe better than _x_tensor & _y_tensor ?
+    xs_np = [x.numpy().squeeze(0) for x in xs]  
+    ys_np = [y.numpy() for y in ys]
+
+    df = pd.DataFrame({"image": xs_np, "label": ys_np})
 
     shape = DataShape.model_validate(
         {
@@ -109,12 +110,7 @@ def test_pgd_asr_on_tiny_imagenet(model_name):
         }
     )
 
-    dummy_df = pd.DataFrame([0] * len(xs), columns=["dummy"])
-    dataset = Dataset(pid=uuid.uuid4(), shape=shape, data=dummy_df)
-
-    object.__setattr__(dataset, "_x_tensor", x_tensor)
-    object.__setattr__(dataset, "_y_tensor", y_tensor)
-
+    dataset = Dataset(pid=uuid.uuid4(), shape=shape, data=df)
     evaluator = next((f for f in model_metric_registry if f[0] == "pgd_asr"), None)
     assert evaluator is not None
 
@@ -128,12 +124,11 @@ def test_pgd_asr_on_tiny_imagenet(model_name):
         f"pgd_asr_{model_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
     )
 
-    df = pd.DataFrame({"pred_before": m.pred_before, "pred_after": m.pred_after})
-    df["asr"] = (df["pred_before"] != df["pred_after"]).astype(float)
+    df_out = pd.DataFrame({"pred_before": m.pred_before, "pred_after": m.pred_after})
+    df_out["asr"] = (df_out["pred_before"] != df_out["pred_after"]).astype(float)
 
     print(f"Global ASR: {m.score:.4f}")
-
-    df.to_csv(csv_path, index=False)
+    df_out.to_csv(csv_path, index=False)
     print("Saved:", csv_path)
 
     assert 0.0 <= m.score <= 1.0
