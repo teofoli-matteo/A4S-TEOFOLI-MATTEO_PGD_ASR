@@ -60,7 +60,8 @@ How to test:
 1. Check that the `tiny-imagenet-200.zip` file is present at the root of the repository.
 2. Unzip it into the same folder as the repository:
 ```unzip tiny-imagenet-200.zip```
-Inside the A4S framework : ```uv run pytest```
+
+To launch the test suite, simply execute this command: ```uv run pytest```
 
 # 6. References
 - Performance Evaluation of Adversarial Attacks: Discrepancies and Solutions
