@@ -15,7 +15,6 @@ from a4s_eval.metric_registries.model_metric_registry import (
 )
 from a4s_eval.service.functional_model import TabularClassificationModel
 from a4s_eval.service.model_factory import load_model
-from a4s_eval.service.model_functional import FunctionalModel
 from a4s_eval.data_model.evaluation import (
     Dataset,
     DataShape,
@@ -94,14 +93,9 @@ def test_data_metric_registry_contains_evaluator(
     test_dataset: Dataset,
     functional_model: TabularClassificationModel,
 ):
-    """
-    Run every registered model metric. For pgd_asr we run a custom image-based scenario
-    (single duck image => create dataset with _x_tensor/_y_tensor and a FunctionalModel wrapping resnet).
-    For other metrics we call them with the standard tabular fixtures.
-    """
+
     name, func = evaluator_function
 
-    # special-case: run your PGD ASR metric (image / resnet) using a tiny dataset (one image)
     if name == "pgd_asr":
         device = "cpu"
         img_path = "tests/data/duck.png"
@@ -117,15 +111,12 @@ def test_data_metric_registry_contains_evaluator(
         img = Image.open(img_path).convert("RGB")
         x = preprocess(img).unsqueeze(0).to(device)
 
-        # load a pretrained resnet for the PGD attack (we use it directly, it's only for testing)
-        resnet = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1).to(
-            device
-        )
+        # resnet to test with my duck.png
+        resnet = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1).to(device)
         resnet.eval()
         with torch.no_grad():
             pred = resnet(x).argmax(dim=1)
 
-        # Build a minimal DataShape accepted by the framework
         ds_shape = DataShape.model_validate(
             {
                 "features": [],
@@ -140,28 +131,26 @@ def test_data_metric_registry_contains_evaluator(
             }
         )
 
-        # Create a Dataset and inject private tensors required by the PGD metric
         dataset = Dataset(
             pid=uuid.uuid4(),
             shape=ds_shape,
             data=pd.DataFrame(
                 {
-                    "image": [x.squeeze(0).cpu().numpy()],  # shape (3,224,224)
-                    "label": [pred.cpu().numpy()],  # shape ()
+                    "image": [x.squeeze(0).cpu().numpy()],
+                    "label": [pred.cpu().numpy()],
                 }
             ),
         )
-        # Wrap the resnet into a FunctionalModel compatible with the metric registry
-        functional_model_img = FunctionalModel(
-            predict=lambda t: resnet(t),
-            predict_proba=lambda t: F.softmax(resnet(t), dim=1).detach().cpu().numpy(),
-            predict_with_grad=lambda t: (resnet(t), torch.zeros_like(resnet(t))),
-        )
+
+        functional_model_img = TabularClassificationModel(
+            predict_class=lambda t: resnet(t).argmax(dim=1).cpu().numpy(),
+            predict_proba=lambda t: torch.softmax(resnet(t), dim=1).detach().cpu().numpy(),
+            predict_proba_grad=lambda t: resnet(t),  
+            )
 
         measures = func(dataset.shape, None, dataset, functional_model_img)
 
     else:
-        # normal path for tabular / other metrics
         measures = func(data_shape, ref_model, test_dataset, functional_model)
 
     save_measures(name, measures)
