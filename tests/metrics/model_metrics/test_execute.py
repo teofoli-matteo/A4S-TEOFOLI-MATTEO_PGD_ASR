@@ -1,11 +1,9 @@
-# tests/metrics/model_metrics/test_execute.py
 import uuid
 import os
 
 import pandas as pd
 import pytest
 import torch
-import torch.nn.functional as F
 from torchvision import models, transforms
 from PIL import Image
 
