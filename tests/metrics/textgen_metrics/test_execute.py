@@ -19,11 +19,6 @@ from a4s_eval.data_model.evaluation import (
     ModelTask,
 )
 
-pytest.skip(
-    "Skipping text generation tests (Ollama not available)", allow_module_level=True
-)
-
-
 @pytest.fixture
 def textgen_dataset() -> pd.DataFrame:
     return pd.read_parquet("./tests/data/squad_val.parquet")
