@@ -12,9 +12,9 @@ In other words, a higher ASR indicates that the model is more vulnerable to adve
 # 3. Class of models it applies to
   - Primarly designed for neural network classifiers (PyTorch-based in this project)
   - Can generalize to models exposing:
-      - ```.predict()``` : deterministric class predictions
-      - ```.predict.proba()``` : predicted class probabilities
-      - ```.predict_with_grad()``` : optionally provides gradients for attack calculation
+      - ```.predict_class()``` : deterministric class predictions as np.array of shape (N,)
+      - ```.predict_proba()``` : predicted class probabilities
+      - ```.predict_proba_grad()``` : returns raw logits with gradients enabled, used by the PGD attack to
 
 Data types supported: 
   - Image data (RGB tensors ```[C,H,W]``` : main focus in this project
