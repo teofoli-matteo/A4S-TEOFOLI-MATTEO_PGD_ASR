@@ -62,6 +62,8 @@ The **Tiny-ImageNet** dataset is provided as a ZIP file (`tiny-imagenet-200.zip`
 ```unzip tiny-imagenet-200.zip```
 
 To launch the test suite, simply execute this command: ```uv run pytest```
+![Test success](tests/data/test_success.png)
+
 
 # 6. References
 - Performance Evaluation of Adversarial Attacks: Discrepancies and Solutions
