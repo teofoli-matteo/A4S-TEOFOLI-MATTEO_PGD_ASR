@@ -1,78 +1,82 @@
-# A4S Evaluation module
+# 0. PGD Attack Success Rate (ASR) Metric 
+# 1. Metric Name
+Attack Success Rate
 
-# Quickstart for Evaluation module
+# 2. Trustworthiness aspect
+Category : Security / Robustness\
+Description :
+The Attack Success Rate (ASR) metric measures how easily an AI model's predictions can be changed by adversarial perturbations. It evalutes the orbustness of AI models by quantifying the proportion of successful attack that cause misclassification.
 
-## How to run within local development environment
+In other words, a higher ASR indicates that the model is more vulnerable to adversarial attacks; while a lower ASR indicates greater robustness.
 
-### Prerequisites
-To run the local development environment, you need first to launch the services containers (database, redis, etc.). Please checkout API repo for instructions on how to do this.
+# 3. Class of models it applies to
+  - Primarly designed for neural network classifiers (PyTorch-based in this project)
+  - Can generalize to models exposing:
+      - ```.predict_class()``` : deterministric class predictions as np.array of shape (N,)
+      - ```.predict_proba()``` : predicted class probabilities
+      - ```.predict_proba_grad()``` : returns raw logits with gradients enabled, used by the PGD attack to
 
-### Configuration of development environment
-We use `uv` as environment manager, you can configure python dependencies with the following command:
+Data types supported: 
+  - Image data (RGB tensors ```[C,H,W]``` : main focus in this project
+  
+  - Models tested in this Project:
+  We evauluted the ASR metric on 4 pretrained ImageNet models
 
-```bash
-uv sync --frozen --group dev
-```
+  | Model | Source | Type |
+|-----:|-----------|-----------|
+|     ResNet-18 | torchvision| CNN|
+|     MobileNet-V2| torchvision    |Lightweight CNN|
+|     VGG-16| torchvision       |Deep CNN|
+|     DenseNet-121| torchvision       |CNN whith skip connections|
 
-<!-- We provide a pre-commit hook to automatically check and format your code before each commit. You can install the pre-commit hooks with the following command:
 
-```bash
-uv run pre-commit install
-``` -->
 
-### Launching locally the A4S Evaluation API
-With the services running, you can now launch the A4S Evaluation API locally.
 
-```bash
-uv sync --frozen --group dev
-bash tasks/start_api.sh
-```
 
-### Launching locally the A4S Evaluation Worker
-With the services running, you can now launch the A4S Evaluation Worker locally.
+# 4. Working assumptions
+- The task is a classification problem.
+- Input features are numerically perturbable
+- Access to model gradients is assumed
+- Attack parameters (perturbation size ```eps```, step size ```alpha```, number of iterations ```iters```)
 
-```bash
-uv sync --frozen --group dev
-bash tasks/start_worker.sh
-```
+Defaylt attack parameters in my implementation:
+  - ```eps = 0.01``` (maximum perturbation per pixel)
+  - ```alpha = 0.005``` (step size)
+  - ```iters = 7 ``` (number of pgd steps)
 
-### How to manually run linter
-We use ruff for linting. This step is automatically run before each commit if the pre-commit hooks are configured.
+# 5. Datasets and Examples
+Dataset used in the final evaluation
+ - We evaluate ASR on Tiny-ImageNet-200:
+    - 200 classes
+    - 64x64 images
+    - In the project: we sample 500 images for faster evaluation
+    - Labels extracted via ```wnids.txt```
 
-To manually run the linter, you can use the following command:
+How to test: 
+## Using the Tiny-ImageNet dataset
+The **Tiny-ImageNet** dataset is provided as a ZIP file (`tiny-imagenet-200.zip`) to avoid having thousands of files in the repo. Before you can use the metrics or run the tests, you must
+**unzip the dataset**.
+### Instructions
+1. Check that the `tiny-imagenet-200.zip` file is present at the root of the repository.
+2. Unzip it into the same folder as the repository:
+```unzip tiny-imagenet-200.zip```
 
-```bash
-uv sync --frozen --group dev
-uv run ruff check .
-uv run ruff format .
-```
+To launch the test suite, simply execute this command: ```uv run pytest```
 
-### How to run tests
-To run the unit tests, you can use the following command:
+# 6. References
+- Performance Evaluation of Adversarial Attacks: Discrepancies and Solutions
+-> https://arxiv.org/pdf/2104.11103
 
-```bash
-uv sync --frozen --group test
-uv run pytest tests/
-```
+- Combining Attack Success Rate and Detection Rate for effective Universal Adversarial Attacks
+-> https://www.esann.org/sites/default/files/proceedings/2021/ES2021-160.pdf
 
-### How to log and customise logs
+- How to Estimate the Success Rate of Higher-Order Side-Channel Attacks
+-> https://cyber.gouv.fr/sites/default/files/IMG/pdf/How_to_Estimate_the_Success_Rate_of_Higher-Order_-_CHES2014-anssi.pdf
 
-We use a single package-wide logger named as the main package: `a4s_api`.
+- Understanding Attack Success Rate (ASR) in Adversarial AI
+-> https://vtiya.medium.com/understanding-attack-success-rate-asr-in-adversarial-ai-e4a1764c4e49
 
-To log, simply import the logger and use it:
+- Github implementation
+-> https://github.com/Trusted-AI/adversarial-robustness-toolbox/blob/main/art/metrics/metrics.py
 
-```python
-from a4s_api.utils import get_logger
 
-get_logger().info("This is an info message")
-get_logger().error("This is an error message")
-```
-
-You can customize the logging configuration by modifying the `./config/logging.yaml` file.
-
-For instance, in the loggers section, you can customize the level of logging for different loggers, such as the `a4s_api` logger (containing our messages) or the `uvicorn` and `sqlalchemy` loggers.
-
-You can also customize the message format by modifying the `formatters.colored.format` field in the loggers section.
-See [official Python documentation on LogRecord attributes](https://docs.python.org/3/library/logging.html#logrecord-attributes) for a full list of available fields.
-
-Please do not push your local changes, except if necessary. For instance, DEBUG log in `logging.yaml` should not be pushed.
