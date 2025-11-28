@@ -61,8 +61,11 @@ The **Tiny-ImageNet** dataset is provided as a ZIP file (`tiny-imagenet-200.zip`
 2. Unzip it into the same folder as the repository:
 ```unzip tiny-imagenet-200.zip```
 
-To launch the test suite, simply execute this command: ```uv run pytest```
-![Test success](tests/data/test_success.png)
+To launch the test suite, simply execute this command: 
+```uv run pytest``` -> This command will run **all** tests contained in A4S.
+```uv run pytest your_path/tests/metrics/model_metrics/test_pgd_asr.py``` -> This command will **only** run the **PGD ASR** metric test that I have implemented.
+
+**Note**: In the test I implemented, we set the number of images to 500 in the variable “N_IMAGES” in the file: `test_pgd_asr.py`. You can of course change this value to another (i.e., 10) to have a test that will run quickly.
 
 
 # 6. References
