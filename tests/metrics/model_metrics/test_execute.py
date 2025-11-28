@@ -96,7 +96,7 @@ def test_data_metric_registry_contains_evaluator(
 
     if name == "pgd_asr":
         device = "cpu"
-        img_path = "tests/data/duck.png"
+        img_path = "tests/data/labrador.jpg"
         assert os.path.exists(img_path), f"Image not found at {img_path}"
 
         preprocess = transforms.Compose(
@@ -109,7 +109,7 @@ def test_data_metric_registry_contains_evaluator(
         img = Image.open(img_path).convert("RGB")
         x = preprocess(img).unsqueeze(0).to(device)
 
-        # resnet to test with my duck.png
+        # resnet to test with my labrador.jpg
         resnet = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1).to(device)
         resnet.eval()
         with torch.no_grad():
