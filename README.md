@@ -2,6 +2,8 @@
 # 1. Metric Name
 Attack Success Rate
 
+Link to the **GitHub repository** for the implementation of my metric: : https://github.com/teofoli-matteo/A4S-TEOFOLI-MATTEO_PGD_ASR
+
 # 2. Trustworthiness aspect
 Category : Security / Robustness\
 Description :
@@ -66,7 +68,12 @@ To launch the test suite, simply execute this command:
 
 ```uv run pytest your_path/tests/metrics/model_metrics/test_pgd_asr.py``` -> This command will **only** run the **PGD ASR** metric test that I have implemented.
 
+**Another test on a single image** I also implemented a test directly in test_execute.py (here : tests/metrics/model_metrics/test_execute.py), but it only acts on one image (located in the /tests/data/ folder, the image is named labrador.png).
+
 **Note**: In the test I implemented, we set the number of images to 500 in the variable “N_IMAGES” in the file: `test_pgd_asr.py`. You can of course change this value to another (i.e., 10) to have a test that will run quickly.
+
+## Proof that all tests pass (tested with N_IMAGES = 500) : 
+![Tests](tests/data/test_success.png)
 
 
 # 6. References
