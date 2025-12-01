@@ -63,10 +63,14 @@ The **Tiny-ImageNet** dataset is provided as a ZIP file (`tiny-imagenet-200.zip`
 2. Unzip it into the same folder as the repository:
 ```unzip tiny-imagenet-200.zip```
 
+#### Prerequisite: 
+1. Go to the following path: `/a4s/A4S-TEOFOLi-MATTEO`
+2. Run the ```uv sync``` command 
+
 To launch the test suite, simply execute this command: 
 ```uv run pytest``` -> This command will run **all** tests contained in A4S.
 
-```uv run pytest your_path/tests/metrics/model_metrics/test_pgd_asr.py``` -> This command will **only** run the **PGD ASR** metric test that I have implemented.
+```uv run pytest tests/metrics/model_metrics/test_pgd_asr.py``` -> This command will **only** run the **PGD ASR** metric test that I have implemented.
 
 **Another test on a single image** I also implemented a test directly in test_execute.py (here : tests/metrics/model_metrics/test_execute.py), but it only acts on one image (located in the /tests/data/ folder, the image is named labrador.png).
 
