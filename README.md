@@ -76,7 +76,7 @@ To launch the test suite, simply execute this command:
 
 **Note**: In the test I implemented, we set the number of images to 500 in the variable “N_IMAGES” in the file: `test_pgd_asr.py`. You can of course change this value to another (i.e., 10) to have a test that will run quickly.
 
-**Note2** : The measures I have created are already available in the /tests/data/measures folder so that you can launch the notebook without any problems to view the various results.
+**Note2** : The measurements I generated with my test_pgd_asr.py are already available in the /tests/data/measures folder so that you can launch the notebook without any problems to view the various results.
 
 ## Proof that all tests pass (tested with N_IMAGES = 500) : 
 ![Tests](tests/data/test_success.png)
