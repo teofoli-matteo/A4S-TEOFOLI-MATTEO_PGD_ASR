@@ -56,12 +56,11 @@ Dataset used in the final evaluation
 
 How to test: 
 ## Using the Tiny-ImageNet dataset
-The **Tiny-ImageNet** dataset is provided as a ZIP file (`tiny-imagenet-200.zip`) to avoid having thousands of files in the repo. Before you can use the metrics or run the tests, you must
-**unzip the dataset**.
+In implementing this metric, I use the `tiny-imagenet-200` dataset. To import this dataset into the project, you need to execute this command:
 ### Instructions
-1. Check that the `tiny-imagenet-200.zip` file is present at the root of the repository.
-2. Unzip it into the same folder as the repository:
-```unzip tiny-imagenet-200.zip```
+1. ```python3 download_tiny.py```
+This script will download and extract the dataset we need to test my metric.
+I had to use this script because I couldn't upload my .zip file with the tiny-imagenet-200 folder or the tiny-imagenet-200 zip file because my folder was too large for Moodle.
 
 #### Prerequisite: 
 1. Go to the following path: `/a4s/A4S-TEOFOLi-MATTEO`
